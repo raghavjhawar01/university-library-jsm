@@ -36,10 +36,11 @@ const BookCard = async ({
     )
     .limit(1);
 
-  const daysLeft = dayjs(hasBorrowed[0].dueDate.slice(0, 10)).diff(
-    dayjs().toDate().toDateString(),
-    "days",
-  );
+  const daysLeft =
+    dayjs(hasBorrowed[0].dueDate.slice(0, 10)).diff(
+      dayjs().toDate().toDateString(),
+      "days",
+    ) || "11";
 
   if (hasBorrowed.length === 1) {
     isLoaned = true;

@@ -29,8 +29,4 @@ const Home = async () => {
   );
 };
 
-//Can also be
-//     <>
-//         <Button>Click Me Now</Button>
-//     </>
 export default Home;

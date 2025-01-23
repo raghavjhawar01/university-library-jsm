@@ -3,6 +3,7 @@ import {
   varchar,
   integer,
   text,
+  decimal,
   boolean,
   pgTable,
   pgEnum,
@@ -32,6 +33,45 @@ export const users = pgTable("users", {
   role: ROLE_ENUM("role").default("USER"),
   lastActivityDate: date("last_activity_date").defaultNow(),
   createAt: timestamp("created_at", {
+    withTimezone: true,
+  }).defaultNow(),
+});
+
+export const books = pgTable("books", {
+  id: uuid("id").notNull().primaryKey().defaultRandom().unique(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  summary: varchar("summary").notNull(),
+  author: varchar("author", { length: 255 }).notNull(),
+  genre: text("genre").notNull(),
+  rating: decimal("rating"),
+  coverUrl: text("cover_url").notNull(),
+  videoUrl: text("video_url").notNull(),
+  coverColor: varchar("cover_color", { length: 7 }).notNull(),
+  totalCopies: integer("total_copies").notNull().default(1),
+  availableCopies: integer("available_copies").notNull().default(0),
+  createdAt: timestamp("created_at", {
+    withTimezone: true,
+  }).defaultNow(),
+});
+
+export const borrowRecords = pgTable("borrow_records", {
+  id: uuid("id").notNull().primaryKey().defaultRandom().unique(),
+  userId: uuid("user_id")
+    .references(() => users.id)
+    .notNull(),
+  bookId: uuid("book_id")
+    .references(() => books.id)
+    .notNull(),
+  borrowDate: timestamp("borrow_date", {
+    withTimezone: true,
+  })
+    .defaultNow()
+    .notNull(),
+  dueDate: date("due_date").notNull(),
+  returnDate: date("return_date"),
+  status: BORROW_STATUS_ENUM("status").default("BORROWED").notNull(),
+  createdAt: timestamp("created_at", {
     withTimezone: true,
   }).defaultNow(),
 });

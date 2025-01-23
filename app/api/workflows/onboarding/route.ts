@@ -4,12 +4,12 @@ import { users } from "@/database/schema";
 import { eq } from "drizzle-orm";
 import { sendEmail } from "@/lib/workflow";
 
+type UserState = "non-active" | "active";
+
 type InitialData = {
   email: string;
   fullName: string;
 };
-
-type UserState = "non-active" | "active";
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 const THREE_DAYS_IN_MS = 3 * ONE_DAY_IN_MS;

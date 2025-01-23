@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import BookCover from "@/components/BookCover";
 import BorrowBook from "@/components/BorrowBook";
 import { db } from "@/database/drizzle";
-import { eq } from "drizzle-orm";
-import { users } from "@/database/schema";
+import { and, eq } from "drizzle-orm";
+import { borrowRecords, users } from "@/database/schema";
 
 interface Props extends Book {
   userId: string;
@@ -32,6 +32,20 @@ const BookOverview = async ({
     .limit(1);
 
   if (!user) return null;
+
+  let borrowed = false;
+
+  const hasBorrowed = await db
+    .select()
+    .from(borrowRecords)
+    .where(and(eq(borrowRecords.bookId, id), eq(borrowRecords.userId, user.id)))
+    .limit(1);
+
+  if (hasBorrowed.length === 1) {
+    borrowed = true;
+  } else {
+    borrowed = false;
+  }
 
   const borrowingEligibility = {
     isEligible: availableCopies > 0 && user.status === "APPROVED",
@@ -71,6 +85,7 @@ const BookOverview = async ({
           bookId={id}
           userId={userId}
           borrowingEligibility={borrowingEligibility}
+          hasBorrowed={borrowed}
         />
       </div>
       <div className="relative flex flex-1 justify-center">

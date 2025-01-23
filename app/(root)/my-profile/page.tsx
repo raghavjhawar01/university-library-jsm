@@ -11,28 +11,6 @@ import { auth } from "@/auth";
 const Page = async () => {
   const session = await auth();
 
-  //
-  // const borrowedBooks = await db
-  //   .select()
-  //   .from(borrowRecords)
-  //   .where(eq(borrowRecords.userId, session?.user?.id as string));
-  //
-  // const borrowedBooksData: Book[] = [];
-  //
-  // if (borrowedBooks) {
-  //   for (let i = 0; i < borrowedBooks.length; i++) {
-  //     borrowedBooksData.push(
-  //       await db
-  //         .select()
-  //         .from(books)
-  //         .where(eq(books.id, borrowedBooks[i].bookId))
-  //         .limit(1),
-  //     );
-  //   }
-  // }
-
-  // console.log(JSON.parse(JSON.stringify(borrowedBooksData)));
-
   const borrowedBooksData = (await db
     .select({
       id: books.id,
@@ -50,8 +28,7 @@ const Page = async () => {
     })
     .from(books)
     .leftJoin(borrowRecords, eq(books.id, borrowRecords.bookId))
-    .where(eq(borrowRecords.userId, session?.user?.id as string))
-    .orderBy(desc(books.createdAt))) as Book[];
+    .where(eq(borrowRecords.userId, session?.user?.id as string))) as Book[];
 
   console.log(JSON.parse(JSON.stringify(borrowedBooksData)));
 

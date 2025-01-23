@@ -31,9 +31,9 @@ const Header = ({ session }: { session: Session }) => {
               "use server";
               await signOut();
             }}
-            className="mb-10"
+            className=""
           >
-            <Button>Logout</Button>
+            <Button className={"text-dark-100 capitalize"}>Logout</Button>
           </form>
         </li>
       </ul>

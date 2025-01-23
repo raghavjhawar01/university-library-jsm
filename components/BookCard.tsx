@@ -4,15 +4,49 @@ import BookCover from "@/components/BookCover";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/auth";
+import { db } from "@/database/drizzle";
+import { borrowRecords } from "@/database/schema";
+import { and, eq } from "drizzle-orm";
+import { date } from "drizzle-orm/pg-core";
+import dayjs from "dayjs";
 
-const BookCard = ({
+interface Props extends Book {
+  isLoaned: boolean;
+}
+
+const BookCard = async ({
   id,
   title,
   genre,
   coverColor,
   isLoaned = false,
   coverUrl,
-}: Book) => {
+}: Props) => {
+  const session = await auth();
+
+  const hasBorrowed = await db
+    .select()
+    .from(borrowRecords)
+    .where(
+      and(
+        eq(borrowRecords.bookId, id),
+        eq(borrowRecords.userId, session?.user?.id as string),
+      ),
+    )
+    .limit(1);
+
+  const daysLeft = dayjs(hasBorrowed[0].dueDate.slice(0, 10)).diff(
+    dayjs().toDate().toDateString(),
+    "days",
+  );
+
+  if (hasBorrowed.length === 1) {
+    isLoaned = true;
+  } else {
+    isLoaned = false;
+  }
+
   return (
     <li className={cn(isLoaned && "xs:w-52 w-full")}>
       <Link
@@ -35,10 +69,15 @@ const BookCard = ({
                 height={18}
                 className="object-contain"
               />
-              <p className="text-light-100">11 days left to return the book.</p>
+              <p className="text-light-100">
+                {daysLeft} days left to return the book.
+              </p>
             </div>
             <Button className="book-btn font-bebas-neue text-dark-100">
               Download Receipt
+            </Button>
+            <Button className="book-btn font-bebas-neue text-dark-100">
+              Return Book
             </Button>
           </div>
         )}

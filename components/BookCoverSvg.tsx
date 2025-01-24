@@ -1,10 +1,18 @@
-const BookCoverSvg = ({ coverColor }: { coverColor: string }) => {
+const BookCoverSvg = ({
+  coverColor,
+  widthString = "100%",
+  heightString = "100%",
+}: {
+  coverColor: string;
+  widthString: string;
+  heightString: string;
+}) => {
   return (
     <svg
       preserveAspectRatio="none"
       fill="none"
-      width="100%"
-      height="100%"
+      width={widthString}
+      height={heightString}
       viewBox="0 0 143 199"
       xmlns="http://www.w3.org/2000/svg"
       className="absolute inset-0"

@@ -49,7 +49,7 @@ const BookCard = async ({
   }
 
   return (
-    <li className={cn(isLoaned && "xs:w-52 w-full")}>
+    <li className={cn(isLoaned && "xs:w-48 w-full")}>
       <Link
         href={`/books/${id}`}
         className={cn(isLoaned && "w-full flex flex-col items-center")}

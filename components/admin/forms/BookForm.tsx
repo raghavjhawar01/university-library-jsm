@@ -19,49 +19,81 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/FileUpload";
 import ColorPicker from "@/components/admin/ColorPicker";
-import { createBook } from "@/lib/admin/actions/book";
+import { createBook, updateBook } from "@/lib/admin/actions/book";
 import { toast } from "@/hooks/use-toast";
 
 interface Props extends Partial<Book> {
-  type?: "create" | "update";
+  type?: "create" | "update" | "delete";
 }
 
 const BookForm = ({ type, ...book }: Props) => {
   const router = useRouter();
 
+  let selectedBooks = book as Book[];
+
   const form = useForm<z.infer<typeof bookSchema>>({
     resolver: zodResolver(bookSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      author: "",
-      genre: "",
-      rating: 1,
-      totalCopies: 1,
-      coverUrl: "",
-      coverColor: "",
-      videoUrl: "",
-      summary: "",
-    },
+    defaultValues: !selectedBooks[0]
+      ? {
+          title: "",
+          description: "",
+          author: "",
+          genre: "",
+          rating: 1,
+          totalCopies: 1,
+          coverUrl: "",
+          coverColor: "",
+          videoUrl: "",
+          summary: "",
+        }
+      : {
+          title: selectedBooks[0].title,
+          description: selectedBooks[0].description,
+          author: selectedBooks[0].author,
+          genre: selectedBooks[0].genre,
+          rating: selectedBooks[0].rating as number,
+          totalCopies: selectedBooks[0].totalCopies,
+          coverUrl: selectedBooks[0].coverUrl,
+          coverColor: selectedBooks[0].coverColor,
+          videoUrl: selectedBooks[0].videoUrl,
+          summary: selectedBooks[0].summary,
+        },
   });
 
   // 2. Define a submit handler.
   const onSubmit = async (values: z.infer<typeof bookSchema>) => {
-    const result = await createBook(values);
+    if (type === "create") {
+      const result = await createBook(values);
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Book created successfully.",
+        });
 
-    if (result.success) {
-      toast({
-        title: "Success",
-        description: "Book created successfully.",
-      });
-
-      router.push(`/admin/books/${result.data.id}`);
+        router.push(`/admin/books/`);
+      } else {
+        toast({
+          title: "Error",
+          description: `Book was not created. ${result.message}`,
+          variant: "destructive",
+        });
+      }
     } else {
-      toast({
-        title: "Error",
-        description: `Book was not created. ${result.message}`,
-        variant: "destructive",
-      });
+      const result = await updateBook(values, selectedBooks[0].id);
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Book updated successfully.",
+        });
+
+        router.push(`/admin/books/`);
+      } else {
+        toast({
+          title: "Error",
+          description: `Book was not created. ${result.message}`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -190,7 +222,9 @@ const BookForm = ({ type, ...book }: Props) => {
                   folder={"books/cover"}
                   variant={"light"}
                   onFileChange={field.onChange}
-                  value={field.value}
+                  value={
+                    selectedBooks[0] ? selectedBooks[0].coverUrl : field.value
+                  }
                 ></FileUpload>
               </FormControl>
               <FormMessage />
@@ -207,7 +241,11 @@ const BookForm = ({ type, ...book }: Props) => {
               </FormLabel>
               <FormControl>
                 <ColorPicker
-                  value={field.value}
+                  value={
+                    type === "update"
+                      ? selectedBooks[0].coverColor
+                      : field.value
+                  }
                   onPickerChange={field.onChange}
                 />
               </FormControl>
@@ -251,7 +289,9 @@ const BookForm = ({ type, ...book }: Props) => {
                   folder={"books/videos"}
                   variant={"light"}
                   onFileChange={field.onChange}
-                  value={field.value}
+                  value={
+                    selectedBooks[0] ? selectedBooks[0].videoUrl : field.value
+                  }
                 ></FileUpload>
               </FormControl>
               <FormMessage />
@@ -279,7 +319,7 @@ const BookForm = ({ type, ...book }: Props) => {
           )}
         />
         <Button type="submit" className={"book-form_btn text-white"}>
-          Add Book to Library
+          {type === "update" ? "Update Book In Library" : "Add Book to Library"}
         </Button>
       </form>
     </Form>

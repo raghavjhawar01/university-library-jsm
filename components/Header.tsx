@@ -16,10 +16,20 @@ const Header = ({ session }: { session: Session }) => {
       </Link>
       <ul className="flex flex-row items-center gap-8">
         <li>
+          <Link href="/" className={"text-white-100 text-1xl"}>
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link href={"/search"} className={"text-white-100 text-1xl"}>
+            Search
+          </Link>
+        </li>
+        <li>
           <Link href="/my-profile">
             <Avatar>
               {/*<AvatarImage src="https://github.com/shadcn.png" />*/}
-              <AvatarFallback className="bg-amber-100 text-dark-100 text-1xl font-semibold">
+              <AvatarFallback className="bg-amber-100 text-dark-100 font-semibold xs:w-48">
                 {getInitials(session?.user?.name || "IN")}
               </AvatarFallback>
             </Avatar>
@@ -33,7 +43,14 @@ const Header = ({ session }: { session: Session }) => {
             }}
             className=""
           >
-            <Button className={"text-dark-100 capitalize"}>Logout</Button>
+            <Button className={"text-dark-100 bg-transparent h-auto"}>
+              <Image
+                src="/icons/logout.svg"
+                alt="logo"
+                width={30}
+                height={30}
+              />
+            </Button>
           </form>
         </li>
       </ul>

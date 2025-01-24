@@ -11,11 +11,11 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
   const session = await auth();
 
-  const [bookDetails] = await db
+  const [bookDetails] = (await db
     .select()
     .from(books)
     .where(eq(books.id, id))
-    .limit(1);
+    .limit(1)) as Book[];
 
   if (!bookDetails) {
     redirect("/404");
@@ -24,9 +24,9 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     <>
       <BookOverview {...bookDetails} userId={session?.user?.id as string} />
       <div className={"book-details"}>
-        <div className={"flex-[1.5] mt-10"}>
+        <div className={"flex-[1]"}>
           <section
-            className={"flex flex-col gap-7 text-light-100 font-semibold mt-10"}
+            className={"flex flex-col gap-7 text-light-100 font-semibold"}
           >
             <h3>Video</h3>
             <BookVideo videoUrl={bookDetails.videoUrl} />

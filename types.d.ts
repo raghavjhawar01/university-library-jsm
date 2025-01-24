@@ -5,13 +5,13 @@ interface Book {
   genre: string;
   totalCopies: number;
   availableCopies: number;
+  rating: number | null;
   description: string;
   coverColor: string;
   coverUrl: string;
   videoUrl: string;
   summary: string;
   createdAt: Date | null;
-  rating: number | null;
 }
 
 interface AuthCredentials {
@@ -27,7 +27,7 @@ interface BookParams {
   description: string;
   author: string;
   genre: string;
-  rating: number;
+  rating?: number | null;
   totalCopies: number;
   coverUrl: string;
   coverColor: string;

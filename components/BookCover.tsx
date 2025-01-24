@@ -22,6 +22,9 @@ interface Props {
   variant?: BookCoverVariant;
   coverColor: string;
   coverImage: string;
+  widthString?: string;
+  heightString?: string;
+  leftString?: string;
 }
 
 const BookCover = ({
@@ -29,6 +32,9 @@ const BookCover = ({
   variant = "regular",
   coverColor = "#012B48",
   coverImage = "https://placehold.co/400x600.png",
+  widthString = "87.5%",
+  heightString = "88%",
+  leftString = "12%",
 }: Props) => {
   return (
     <div
@@ -38,10 +44,18 @@ const BookCover = ({
         className,
       )}
     >
-      <BookCoverSvg coverColor={coverColor} />
+      <BookCoverSvg
+        coverColor={coverColor}
+        widthString={widthString}
+        heightString={heightString}
+      />
       <div
         className="absolute z-10"
-        style={{ left: "12%", width: "87.5%", height: "88%" }}
+        style={{
+          left: leftString,
+          width: widthString,
+          height: heightString,
+        }}
       >
         <IKImage
           path={coverImage}

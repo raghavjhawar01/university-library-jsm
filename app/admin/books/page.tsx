@@ -4,13 +4,27 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/database/drizzle";
 import { users, books } from "@/database/schema";
-import { desc, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import Image from "next/image";
-import config from "@/lib/config";
 import BookCover from "@/components/BookCover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-const Page = async () => {
+const Page = async ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string };
+}) => {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/sign-in");
@@ -26,20 +40,41 @@ const Page = async () => {
   if (!isAdmin) {
     redirect("/");
   }
-  const allBooks = (await db.select().from(books)) as Book[];
 
+  const isFilter = searchParams?.filter || null;
+
+  let allBooks = [] as Book[];
+
+  if (isFilter) {
+    allBooks = (await db.select().from(books).orderBy(books.title)) as Book[];
+  } else {
+    allBooks = (await db.select().from(books)) as Book[];
+  }
   return (
     <div className={"w-full rounded-2xl bg-white p-7"}>
       <div className={"flex flex-wrap items-center justify-between gap-2"}>
         <h2 className={"text-xl font-semibold"}>All Books</h2>
-        <Button className={"bg-primary-admin"} asChild>
-          <Link href={"/admin/books/new"} className={"text-white"}>
-            + Create a New Book
-          </Link>
-        </Button>
+        <div className={"flex gap-2"}>
+          <Button
+            className={
+              isFilter
+                ? "text-sm text-white inline-flex bg-blue-600 hover:bg-blue-600"
+                : "text-sm text-gray-400 inline-flex bg-transparent hover:bg-transparent"
+            }
+            asChild
+          >
+            <Link href={isFilter ? "./books" : "./books?filter=true"}>A-Z</Link>
+            {/*<Image src={"/admin/"} alt={} width={15} height={15} />*/}
+          </Button>
+          <Button className={"bg-primary-admin"} asChild>
+            <Link href={"/admin/books/new"} className={"text-white"}>
+              + Create a New Book
+            </Link>
+          </Button>
+        </div>
       </div>
-      <div className={"mt-7 w-full overflow-hidden"}>
-        <table>
+      <div>
+        <table className={"mt-7 w-full overflow-y-auto"}>
           <thead className={"text-left text-sm bg-stone-100 "}>
             <tr>
               <th
@@ -90,7 +125,7 @@ const Page = async () => {
                 </td>
                 <td
                   className={
-                    "p-2 w-[96px] flex-col items-center align-items-center"
+                    "p-2 w-[97px] flex-col items-center align-items-center"
                   }
                 >
                   <Button className={"p-0 m-0 bg-transparent"} asChild>
@@ -106,19 +141,48 @@ const Page = async () => {
                       />
                     </Link>
                   </Button>
-                  <Button className={"p-0 m-0 bg-transparent"} asChild>
-                    <Link
-                      href={"/admin/delete/" + book.id}
-                      className={"inline-flex"}
-                    >
-                      <Image
-                        src="/icons/admin/trash.svg"
-                        alt={"delete-icon"}
-                        width={24}
-                        height={24}
-                      />
-                    </Link>
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button className={"p-0 m-0 bg-transparent"}>
+                        <Image
+                          src="/icons/admin/trash.svg"
+                          alt={"delete-icon"}
+                          width={24}
+                          height={24}
+                        />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure? you want to delete the Book named{" "}
+                          {book.title}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel asChild className={"confirm-reject"}>
+                          <Link href={"/admin/books"}>Cancel</Link>
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          asChild
+                          className={"confirm-approve"}
+                        >
+                          <Link
+                            href={
+                              "/admin/books/new/" +
+                              book.id +
+                              "?deleteRecord=true"
+                            }
+                          >
+                            Delete
+                          </Link>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </td>
               </tr>
             ))}

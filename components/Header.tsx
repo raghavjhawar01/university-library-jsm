@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { cn, getInitials } from "@/lib/utils";
+import { getInitials } from "@/lib/utils";
 import Image from "next/image";
 import { signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,11 @@ const Header = ({ session }: { session: Session }) => {
             }}
             className=""
           >
-            <Button className={"text-dark-100 bg-transparent h-auto"}>
+            <Button
+              className={
+                "text-dark-100 bg-transparent h-auto hover:bg-transparent"
+              }
+            >
               <Image
                 src="/icons/logout.svg"
                 alt="logo"

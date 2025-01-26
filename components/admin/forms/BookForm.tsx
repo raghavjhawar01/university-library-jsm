@@ -19,8 +19,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import FileUpload from "@/components/FileUpload";
 import ColorPicker from "@/components/admin/ColorPicker";
-import { createBook, updateBook } from "@/lib/admin/actions/book";
+import { createBook, deleteBook, updateBook } from "@/lib/admin/actions/book";
 import { toast } from "@/hooks/use-toast";
+
+import { useEffect } from "react";
 
 interface Props extends Partial<Book> {
   type?: "create" | "update" | "delete";
@@ -30,6 +32,29 @@ const BookForm = ({ type, ...book }: Props) => {
   const router = useRouter();
 
   let selectedBooks = book as Book[];
+
+  useEffect(() => {
+    const callAsyncFunction = async () => {
+      if (type === "delete" && selectedBooks) {
+        const result = await deleteBook(selectedBooks[0].id as string);
+        // @ts-ignore
+        if (result.success) {
+          toast({
+            title: "Success",
+            description: "Book deleted successfully.",
+          });
+          router.push(`/admin/books/`);
+        } else {
+          toast({
+            title: "Unsuccessful",
+            description: "Book not deleted try again.",
+          });
+          router.push(`/admin/books/`);
+        }
+      }
+    };
+    callAsyncFunction();
+  }, [type]);
 
   const form = useForm<z.infer<typeof bookSchema>>({
     resolver: zodResolver(bookSchema),
@@ -78,7 +103,7 @@ const BookForm = ({ type, ...book }: Props) => {
           variant: "destructive",
         });
       }
-    } else {
+    } else if (type === "update") {
       const result = await updateBook(values, selectedBooks[0].id);
       if (result.success) {
         toast({

@@ -4,7 +4,7 @@
 
 @layer components {
     .admin-container {
-        @apply flex w-[calc(100%-264px)] flex-1 flex-col bg-light-300 p-5 xs:p-10;
+        @apply flex w-[calc(100%-264px)] flex-1 flex-col bg-light-300 p-4 xs:p-4 h-svh overflow-auto;
     }
 
     .back-btn {
@@ -68,7 +68,18 @@
 
     /* Statistics */
     .stat {
-        @apply bg-white rounded-xl p-5 space-y-5 flex-1;
+        @apply bg-white rounded-xl p-3 space-y-5 flex-1;
+    }
+
+    .stat-container {
+        @apply flex inline-flex flex-row gap-10 items-center justify-center ;
+    }
+
+    .stat-increase-counter{
+        @apply text-green inline-flex gap-4;
+    }
+    .stat-decrease-counter{
+        @apply text-red inline-flex gap-4;
     }
 
     .stat-info {
@@ -76,55 +87,91 @@
     }
 
     .stat-label {
-        @apply font-medium text-base text-light-500 whitespace-nowrap;
+        @apply font-medium text-base text-light-500 whitespace-nowrap inline-flex gap-4;
     }
 
     .stat-count {
         @apply font-semibold text-3xl text-dark-400;
     }
 
+    .home-container{
+        @apply flex flex-col justify-center gap-4;
+    }
+
+    .home-content-container {
+        @apply flex flex-1 flex-row gap-4;
+    }
+
+    .container-header{
+        @apply items-center text-sm flex flex-1 flex-row w-full font-semibold p-4 rounded-xl text-dark-500 bg-white ;
+    }
+
+    .container-header span{
+        @apply flex flex-1;
+    }
+    .container-header span:first-child{
+        @apply flex-1 justify-start;
+    }
+    .container-header span:last-child{
+        @apply flex-1 justify-end;
+    }
+
+    .left-container {
+        @apply  w-5/12 flex flex-col gap-4 max-h-[47%] min-h-[47%];
+    }
+    .right-container {
+        @apply  w-3/5 flex flex-col gap-4 ;
+    }
+
+    .borrow-requests-container{
+        @apply flex flex-col gap-2;
+    }
+    .account-requests-container{
+        @apply flex flex-col bg-white rounded-xl p-2;
+    }
+
     /* Book Stripe */
     .book-stripe {
-        @apply flex flex-row gap-4 bg-light-300 p-4 rounded-lg;
+        @apply flex flex-row gap-4 bg-light-300 p-3 rounded-lg;
     }
 
     .book-stripe .title {
         @apply font-semibold text-base text-dark-400 line-clamp-1;
     }
 
-    .book-stripe .author {
-        @apply flex flex-wrap flex-row items-center gap-2;
+    .book-stripe .title .author {
+        @apply flex flex-wrap flex-row items-center gap-2 text-sm font-normal;
     }
 
-    .book-stripe .author p:first-child {
+    .book-stripe .title .author p:first-child {
         @apply text-light-500 text-sm line-clamp-1;
     }
 
-    .book-stripe .author div {
+    .book-stripe .title .author div {
         @apply size-1 rounded-full bg-light-500;
     }
 
-    .book-stripe .author p:last-child {
+    .book-stripe .title .author p:last-child {
         @apply text-light-500 text-sm;
     }
 
-    .book-stripe .user {
+    .book-stripe .title .user {
         @apply mt-2.5 flex flex-row flex-wrap gap-5;
     }
 
-    .book-stripe .user .avatar {
+    .book-stripe .title .user .avatar {
         @apply flex flex-row items-center gap-1.5;
     }
 
-    .book-stripe .user .avatar p {
+    .book-stripe .title .user .avatar p {
         @apply text-xs text-dark-200;
     }
 
-    .book-stripe .borrow-date {
+    .book-stripe .title .borrow-date {
         @apply flex flex-row items-center gap-1.5;
     }
 
-    .book-stripe .borrow-date p {
+    .book-stripe .title .borrow-date p {
         @apply text-xs text-dark-200;
     }
 
@@ -152,7 +199,7 @@
 
     /* Header */
     .admin-header {
-        @apply flex lg:items-end items-start justify-between lg:flex-row flex-col gap-5 sm:mb-10 mb-5;
+        @apply flex lg:items-end items-start justify-between lg:flex-row flex-col gap-5 sm:mb-2 mb-2;
     }
 
     /* Search */
@@ -191,14 +238,18 @@
 
     /* User Card */
     .user-card {
-        @apply w-40 bg-light-300 py-4 px-3 flex justify-center items-center flex-col rounded-xl text-center;
+        @apply w-[9.4rem] bg-light-300 p-2 flex justify-center items-center flex-col rounded-xl text-center;
     }
 
     .user-card .name {
-        @apply font-medium mt-3 text-dark-400 line-clamp-1 w-full break-words;
+        @apply font-medium mt-3 text-dark-400 line-clamp-1 w-full break-words text-sm;
     }
 
     .user-card .email {
-        @apply text-light-500 text-sm line-clamp-1 break-words w-full;
+        @apply text-light-500 text-[10px] line-clamp-1 break-words w-full;
+    }
+
+    .user-card .avatar{
+        @apply rounded-full p-3 bg-amber-100
     }
 }

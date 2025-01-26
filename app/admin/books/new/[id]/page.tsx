@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BookForm from "@/components/admin/forms/BookForm";
-import { auth } from "@/auth";
 import { books } from "@/database/schema";
 import { db } from "@/database/drizzle";
 import { eq } from "drizzle-orm";
@@ -15,15 +14,15 @@ const Page = async ({
   searchParams: { [key: string]: string };
 }) => {
   const id = (await params).id;
-  const session = await auth();
 
-  const edit = searchParams?.edit || null;
+  const dynamicParams = searchParams;
 
-  console.log("edit", edit);
+  const edit = dynamicParams?.edit || null;
+  const deleteRecord = dynamicParams?.deleteRecord || null;
 
   let getBookDetails = [] as Book[];
 
-  if (edit) {
+  if (edit || deleteRecord) {
     getBookDetails = (await db
       .select()
       .from(books)
@@ -36,9 +35,11 @@ const Page = async ({
       <Button className={"back-btn"}>
         <Link href={"/admin/books"}>Go Back</Link>
       </Button>
-
       <section className={"w-full max-w-2xl"}>
-        <BookForm type={edit ? "update" : "delete"} {...getBookDetails} />
+        <BookForm
+          type={edit ? "update" : deleteRecord ? "delete" : "create"}
+          {...getBookDetails}
+        />
       </section>
     </>
   );

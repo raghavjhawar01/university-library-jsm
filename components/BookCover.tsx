@@ -32,9 +32,9 @@ const BookCover = ({
   variant = "regular",
   coverColor = "#012B48",
   coverImage = "https://placehold.co/400x600.png",
-  widthString = "87.5%",
+  widthString = "89.5%",
   heightString = "88%",
-  leftString = "12%",
+  leftString = "10%",
 }: Props) => {
   return (
     <div
@@ -44,11 +44,7 @@ const BookCover = ({
         className,
       )}
     >
-      <BookCoverSvg
-        coverColor={coverColor}
-        widthString={widthString}
-        heightString={heightString}
-      />
+      <BookCoverSvg coverColor={coverColor} />
       <div
         className="absolute z-10"
         style={{

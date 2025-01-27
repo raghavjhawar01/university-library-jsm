@@ -22,8 +22,6 @@ const Page = async ({
 
   const roles = Object.values(ROLE_ENUM);
 
-  console.log(roles);
-
   if (isFilter) {
     allUsers = await db
       .select({
@@ -146,6 +144,7 @@ const Page = async ({
                 >
                   <form>
                     <Select
+                      isPage={"usersPage"}
                       dataId={user.email}
                       defaultValue={user.role === "ADMIN" ? "ADMIN" : "USER"}
                       options={[

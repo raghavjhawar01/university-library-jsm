@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { books, borrowRecords, users } from "@/database/schema";
 import { db } from "@/database/drizzle";
-import { count, eq } from "drizzle-orm";
+import { count, eq, ne } from "drizzle-orm";
 import config from "@/lib/config";
 import { getInitials } from "@/lib/utils";
 import UserCard from "@/components/admin/UserCard";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { notEqual } from "node:assert";
 
 const Page = async () => {
   const borrowedBooks = await db
@@ -25,7 +26,8 @@ const Page = async () => {
     })
     .from(books)
     .leftJoin(borrowRecords, eq(books.id, borrowRecords.bookId))
-    .rightJoin(users, eq(borrowRecords.userId, users.id));
+    .rightJoin(users, eq(borrowRecords.userId, users.id))
+    .where(ne(books.title, ""));
 
   const usersRequests = await db
     .select({
@@ -36,10 +38,10 @@ const Page = async () => {
     .from(users)
     .where(eq(users.status, "PENDING"));
 
-  const allBooks = await db.select().from(books).limit(5);
+  const allBooks = await db.select().from(books);
 
   return (
-    <div className={"home-container xs:w-full"}>
+    <div className={"home-container overflow-auto gap-8 inline-flex w-max"}>
       <div className={"stat-container"}>
         <div className={"stat"}>
           <div className={"stat-label"}>
@@ -64,53 +66,58 @@ const Page = async () => {
         </div>
       </div>
       <div className={"home-content-container"}>
-        <div className={"left-container w-5/12"}>
+        <div className={"left-container"}>
           <div
             className={
-              "borrow-requests-container flex-[1] bg-white p-2 rounded-xl overflow-y-hidden"
+              "w-full max-h-full overflow-hidden rounded-bl-xl rounded-br-xl"
             }
           >
-            <div className={"container-header"}>
-              <span className={"flex-1  justify-start"}>Borrow Requests</span>
-              <span>
-                <Link href={"/admin/borrow-requests"}>View All</Link>
-              </span>
-            </div>
-            {borrowedBooks.map((book) => (
-              <div className={"book-stripe"} key={book.id}>
-                <Image
-                  src={config.env.imagekit.urlEndpoint + book.coverUrl}
-                  alt={book.title + "-cover"}
-                  width={50}
-                  height={50}
-                />
-                <div className={"title"}>
-                  {book.title?.slice(0, 20)}
-                  <div className={"author"}>
-                    {book.author}| {book.genre}
-                  </div>
-                  <div className={"user text-xs font-normal "}>
-                    <div className={"avatar bg-amber-100 text-[10px]"}>RJ</div>
-                    {book.fullName}
-                    <div className={"borrow-date text-xs font-normal"}>
-                      {book.borrowDate?.toString().slice(4, 15)}
+            <div
+              className={
+                "borrow-requests-container flex-[1] bg-white p-2 rounded-xl overflow-hidden"
+              }
+            >
+              <div className={"container-header"}>
+                <span className={"flex-1  justify-start"}>Borrow Requests</span>
+                <span>
+                  <Link href={"/admin/borrow-requests"}>View All</Link>
+                </span>
+              </div>
+              {borrowedBooks.map((book) => (
+                <div className={"book-stripe"} key={book.id}>
+                  <Image
+                    src={config.env.imagekit.urlEndpoint + book.coverUrl}
+                    alt={book.title + "-cover"}
+                    width={50}
+                    height={50}
+                  />
+                  <div className={"title"}>
+                    {book.title?.slice(0, 20)}
+                    <div className={"author"}>
+                      {book.author}| {book.genre}
+                    </div>
+                    <div className={"user text-xs font-normal "}>
+                      <div className={"avatar bg-amber-100 text-[10px]"}>
+                        RJ
+                      </div>
+                      {book.fullName}
+                      <div className={"borrow-date text-xs font-normal"}>
+                        {book.borrowDate?.toString().slice(4, 15)}
+                      </div>
                     </div>
                   </div>
+                  <div className={"bg-transparent p-4 rounded-2xl "}>
+                    <Image
+                      src={"icons/admin/eye.svg"}
+                      alt={"eye"}
+                      width={20}
+                      height={20}
+                    />
+                  </div>
                 </div>
-                <div
-                  className={
-                    "bg-transparent p-4 rounded-2xl flex flex-1 justify-end items-start"
-                  }
-                >
-                  <Image
-                    src={"icons/admin/eye.svg"}
-                    alt={"eye"}
-                    width={20}
-                    height={20}
-                  />
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className={"bottom-blur"}></div>
           </div>
           <div className={"account-requests-container"}>
             <div className={"container-header"}>
@@ -136,7 +143,7 @@ const Page = async () => {
             </div>
           </div>
         </div>
-        <div className={"right-container overflow-hidden"}>
+        <div className={"right-container overflow-hidden rounded-xl"}>
           <div className={"recent-books-container bg-white p-4"}>
             <div className={"container-header"}>
               <span>Recently Added Books</span>
@@ -161,7 +168,7 @@ const Page = async () => {
                 Add New Book
               </div>
             </div>
-            <div>
+            <div className={"recent-books-container"}>
               {allBooks.map((book) => (
                 <div className={"book-stripe"} key={book.id}>
                   <Image
@@ -197,6 +204,7 @@ const Page = async () => {
               ))}
             </div>
           </div>
+          <div className={"bottom-blur"}></div>
         </div>
       </div>
     </div>

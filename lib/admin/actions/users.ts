@@ -3,6 +3,52 @@
 import { db } from "@/database/drizzle";
 import { borrowRecords, users } from "@/database/schema";
 import { count, eq } from "drizzle-orm";
+import { timestamp } from "drizzle-orm/pg-core";
+
+export const updateBorrowRequestsStatus = async (
+  newValue: string,
+  key: string,
+) => {
+  const validStatus = ["BORROWED", "RETURNED"];
+  if (!validStatus.includes(newValue)) {
+  }
+
+  let updateStatus;
+
+  if (newValue === "RETURNED") {
+    updateStatus = await db
+      .update(borrowRecords)
+      // @ts-ignore
+      .set({
+        status: newValue,
+        returnDate: new Date()
+          .toLocaleDateString("en-IN", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          })
+          .replace(",", ""),
+      })
+      .where(eq(borrowRecords.id, key));
+  } else {
+    updateStatus = await db
+      .update(borrowRecords)
+      // @ts-ignore
+      .set({ status: newValue, returnDate: null })
+      .where(eq(borrowRecords.id, key));
+  }
+  if (updateStatus!) {
+    return {
+      success: true,
+      message: "Status Updated successfully.",
+    };
+  } else {
+    return {
+      success: false,
+      message: "Status not updated.",
+    };
+  }
+};
 
 export const updateRoleUser = async (newValue: string, key: string) => {
   const validRoles = ["USER", "ADMIN", "SUPERADMIN"];
@@ -43,6 +89,31 @@ export const deleteUser = async (userId: string) => {
     return {
       success: false,
       message: "User not deleted.",
+    };
+  }
+};
+
+export const updateUserStatus = async (newValue: string, key: string) => {
+  const validStatus = ["PENDING", "APPROVED"];
+  if (!validStatus.includes(newValue)) {
+  }
+
+  const approvedUser = await db
+    .update(users)
+    // @ts-ignore
+    .set({ status: newValue })
+    .where(eq(users.email, key))
+    .returning({ fullName: users.fullName });
+
+  if (approvedUser) {
+    return {
+      success: true,
+      message: "User approved successfully.",
+    };
+  } else {
+    return {
+      success: false,
+      message: "User not approved, try again later.",
     };
   }
 };

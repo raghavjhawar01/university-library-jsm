@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 
 import "@/styles/admin.css";
 import Sidebar from "@/components/admin/Sidebar";
@@ -15,7 +15,8 @@ const Layout = async ({ children }: { children: ReactNode }) => {
     redirect("/sign-in");
   }
 
-  const isAdmin = await db
+  let isAdmin = false;
+  isAdmin = await db
     .select({ isAdmin: users.role })
     .from(users)
     .where(eq(users.id, session?.user?.id))
@@ -23,12 +24,27 @@ const Layout = async ({ children }: { children: ReactNode }) => {
     .then((res) => res[0]?.isAdmin === "ADMIN");
 
   if (!isAdmin) {
+    isAdmin = await db
+      .select({ isAdmin: users.role })
+      .from(users)
+      .where(eq(users.id, session?.user?.id))
+      .limit(1)
+      .then((res) => res[0]?.isAdmin === "SUPER ADMIN");
+  }
+
+  if (!isAdmin) {
     redirect("/");
   }
 
   return (
     <main className={"flex min-h-screen w-full flex-row"}>
-      <Sidebar session={session} />
+      <Sidebar
+        session={session}
+        action={async () => {
+          "use server";
+          await signOut();
+        }}
+      />
       <div className={"admin-container"}>
         <Header session={session} />
         {children}

@@ -25,22 +25,6 @@ const Page = async ({
 }: {
   searchParams: { [key: string]: string };
 }) => {
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/sign-in");
-  }
-
-  const isAdmin = await db
-    .select({ isAdmin: users.role })
-    .from(users)
-    .where(eq(users.id, session?.user?.id))
-    .limit(1)
-    .then((res) => res[0]?.isAdmin === "ADMIN");
-
-  if (!isAdmin) {
-    redirect("/");
-  }
-
   const isFilter = searchParams?.filter || null;
 
   let allBooks = [] as Book[];
@@ -128,7 +112,10 @@ const Page = async ({
                     "p-2 w-[97px] flex-col items-center align-items-center"
                   }
                 >
-                  <Button className={"p-0 m-0 bg-transparent"} asChild>
+                  <Button
+                    className={"p-0 m-0 bg-transparent shadow-transparent "}
+                    asChild
+                  >
                     <Link
                       href={"/admin/books/new/" + book.id + "?edit=true"}
                       className={"inline-flex mr-2.5"}
@@ -143,7 +130,9 @@ const Page = async ({
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button className={"p-0 m-0 bg-transparent"}>
+                      <Button
+                        className={"p-0 m-0 bg-transparent shadow-transparent "}
+                      >
                         <Image
                           src="/icons/admin/trash.svg"
                           alt={"delete-icon"}

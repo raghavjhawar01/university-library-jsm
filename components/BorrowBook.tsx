@@ -36,41 +36,41 @@ const BorrowBook = ({
         description: message,
         variant: "destructive",
       });
-    }
+    } else {
+      setBorrowing(true);
 
-    setBorrowing(true);
+      try {
+        const result = await borrowBook({ bookId, userId, hasBorrowed });
 
-    try {
-      const result = await borrowBook({ bookId, userId, hasBorrowed });
+        if (result.success) {
+          toast({
+            title: "Success",
+            description: "Book borrowed successfully",
+          });
 
-      if (result.success) {
-        toast({
-          title: "Success",
-          description: "Book borrowed successfully",
-        });
+          router.push("/my-profile");
+        } else if (hasBorrowed) {
+          toast({
+            title: "Success",
+            description: "Book Already Borrowed.",
+          });
 
-        router.push("/my-profile");
-      } else if (hasBorrowed) {
-        toast({
-          title: "Success",
-          description: "Book Already Borrowed.",
-        });
-
-        router.push("/my-profile");
-      } else {
+          router.push("/my-profile");
+        } else {
+          toast({
+            title: "Error",
+            description: "Error occurred while borrowing the book.",
+          });
+        }
+      } catch (error) {
         toast({
           title: "Error",
-          description: "Error occurred while borrowing the book.",
+          description: "An error occurred while borrowing the book",
+          variant: "destructive",
         });
+      } finally {
+        setBorrowing(false);
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred while borrowing the book",
-        variant: "destructive",
-      });
-    } finally {
-      setBorrowing(false);
     }
     if (hasBorrowed) {
       setBorrowing(true);

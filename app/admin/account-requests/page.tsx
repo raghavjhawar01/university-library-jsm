@@ -1,14 +1,13 @@
 import React from "react";
 import { db } from "@/database/drizzle";
 import { users } from "@/database/schema";
-import { count, desc, eq, ne } from "drizzle-orm";
+import { count, desc, eq, ne, or } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import Select from "@/components/admin/Select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import DeleteLink from "@/components/admin/DeleteLink";
 import config from "@/lib/config";
 
 const Page = async ({
@@ -16,7 +15,7 @@ const Page = async ({
 }: {
   searchParams: { [key: string]: string };
 }) => {
-  const isFilter = (await searchParams?.filter) || null;
+  const isFilter = searchParams?.filter || null;
 
   let allUsers: any[];
 
@@ -32,10 +31,11 @@ const Page = async ({
         idNo: users.universityId,
         idCardUrl: users.universityCard,
         joiningDate: users.createAt,
+        role: users.role,
       })
       .from(users)
-      .where(ne(users.fullName, ""))
-      .orderBy(desc(users.createAt));
+      .where(ne(users.role, "SUPER ADMIN"))
+      .orderBy(users.createAt);
   } else {
     allUsers = await db
       .select({
@@ -46,9 +46,11 @@ const Page = async ({
         idNo: users.universityId,
         idCardUrl: users.universityCard,
         joiningDate: users.createAt,
+        role: users.role,
       })
       .from(users)
-      .where(ne(users.fullName, ""));
+      .where(ne(users.role, "SUPER ADMIN"))
+      .orderBy(desc(users.createAt));
   }
 
   // noinspection JSFileReferences

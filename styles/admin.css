@@ -117,7 +117,7 @@
     }
 
     .left-container {
-        @apply  w-2/3 flex flex-col gap-4 max-h-[67%] min-h-[47%];
+        @apply  w-9/12 flex flex-col gap-4 max-h-[100%] min-h-[47%];
     }
     .right-container {
         @apply  w-full flex flex-col gap-4 ;
@@ -172,6 +172,14 @@
     }
 
     .book-stripe .title .user .avatar p {
+        @apply text-xs text-dark-200;
+    }
+
+     .header-addNewBooks .avatar {
+        @apply flex flex-row items-center gap-1.5;
+    }
+
+     .header-addNewBooks .avatar p {
         @apply text-xs text-dark-200;
     }
 
@@ -241,7 +249,7 @@
     }
 
     .admin-sidebar .user {
-        @apply my-8 flex w-full flex-row gap-2 rounded-full border border-light-400 px-6 py-2 shadow-sm max-md:px-2;
+        @apply my-8 flex w-full flex-row gap-2 rounded-full border border-light-400 px-2 py-2 shadow-sm max-md:px-2;
     }
 
     /* User Card */
@@ -259,5 +267,9 @@
 
     .user-card .avatar{
         @apply rounded-full p-3 bg-amber-100
+    }
+
+    .header-addNewBooks .avatar{
+        @apply rounded-full p-3 bg-white
     }
 }

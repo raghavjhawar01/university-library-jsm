@@ -18,6 +18,8 @@ import Link from "next/link";
 import { approveUser } from "@/lib/admin/actions/users";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 interface userProps {
   id: string;
@@ -50,7 +52,11 @@ const UserCard = ({ id, initials, name, email }: userProps) => {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <div key={id} className={"user-card"}>
-          <div className={"avatar"}>{initials}</div>
+          <Avatar>
+            <AvatarFallback className={"bg-amber-100"}>
+              {initials}
+            </AvatarFallback>
+          </Avatar>
           <div className={"name"}>{name}</div>
           <div className={"email"}>{email}</div>
         </div>

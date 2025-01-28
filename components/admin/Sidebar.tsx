@@ -8,8 +8,11 @@ import { cn, getInitials } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Session } from "next-auth";
+import { Button } from "@/components/ui/button";
+import image from "next/image";
+import { signOut } from "@/auth";
 
-const Sidebar = ({ session }: { session: Session }) => {
+const Sidebar = ({ session, action }: { session: Session; action: string }) => {
   const pathname = usePathname();
 
   return (
@@ -67,6 +70,20 @@ const Sidebar = ({ session }: { session: Session }) => {
           <p className="font-semibold text-dark-200">{session?.user?.name}</p>
           <p className="text-light-500 text-xs">{session?.user?.email}</p>
         </div>
+        <form action={action}>
+          <Button
+            className={
+              "p-1 bg-transparent hover:bg-transparent shadow-transparent"
+            }
+          >
+            <Image
+              src="/icons/logout.svg"
+              width={25}
+              height={25}
+              alt={"logout-BookWise"}
+            />
+          </Button>
+        </form>
       </div>
     </div>
   );

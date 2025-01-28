@@ -1,7 +1,7 @@
 import React from "react";
 import { db } from "@/database/drizzle";
 import { borrowRecords, ROLE_ENUM, users } from "@/database/schema";
-import { count, eq } from "drizzle-orm";
+import { count, eq, ne } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
 import Select from "@/components/admin/Select";
@@ -36,6 +36,7 @@ const Page = async ({
       })
       .from(users)
       .leftJoin(borrowRecords, eq(borrowRecords.userId, users.id))
+      .where(ne(users.role, "SUPER ADMIN"))
       .groupBy(users.id)
       .orderBy(users.fullName);
   } else {
@@ -52,6 +53,7 @@ const Page = async ({
       })
       .from(users)
       .leftJoin(borrowRecords, eq(borrowRecords.userId, users.id))
+      .where(ne(users.role, "SUPER ADMIN"))
       .groupBy(users.id);
   }
 

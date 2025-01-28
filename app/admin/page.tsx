@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { books, borrowRecords, users } from "@/database/schema";
 import { db } from "@/database/drizzle";
-import { count, eq, ne } from "drizzle-orm";
+import { and, count, eq, gt, gte, lt, lte, ne } from "drizzle-orm";
 import config from "@/lib/config";
 import { getInitials } from "@/lib/utils";
 import UserCard from "@/components/admin/UserCard";
@@ -29,6 +29,67 @@ const Page = async () => {
     .rightJoin(users, eq(borrowRecords.userId, users.id))
     .where(ne(books.title, ""));
 
+  const now = new Date();
+  const today = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    0,
+    0,
+    0,
+    0,
+  );
+
+  console.log(today);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  console.log(yesterday);
+
+  const dayBefore = new Date(today);
+  dayBefore.setDate(today.getDate() - 2);
+
+  const booksYesterday = await db
+    .select()
+    .from(borrowRecords)
+    .where(
+      and(
+        gte(borrowRecords.borrowDate, yesterday),
+        lte(borrowRecords.borrowDate, today),
+      ),
+    );
+
+  const booksToday = await db
+    .select()
+    .from(borrowRecords)
+    .where(gte(borrowRecords.borrowDate, today));
+
+  const usersYesterday = await db
+    .select({ email: users.email, joinedOn: users.createAt })
+    .from(users)
+    .where(and(gte(users.createAt, yesterday), lte(users.createAt, today)));
+
+  const usersToday = await db
+    .select({ email: users.email, joinedOn: users.createAt })
+    .from(users)
+    .where(gte(users.createAt, today));
+
+  const totalBooksYesterday = await db
+    .select({ name: books.title })
+    .from(books)
+    .where(and(gte(books.createdAt, yesterday), lte(books.createdAt, today)));
+
+  const totalBooksToday = await db
+    .select({ name: books.title })
+    .from(books)
+    .where(gte(books.createdAt, today));
+
+  const caretAllBooks = totalBooksToday.length - totalBooksYesterday.length;
+
+  const caretUsers = usersToday.length - usersYesterday.length;
+
+  const caret = booksToday.length - booksYesterday.length;
+
   const usersRequests = await db
     .select({
       id: users.id,
@@ -40,36 +101,74 @@ const Page = async () => {
 
   const allBooks = await db.select().from(books);
 
+  const countUsers = await db.select({ email: users.email }).from(users);
+
   return (
-    <div className={"home-container overflow-auto gap-8 inline-flex w-max"}>
+    <div className={"home-container overflow-auto gap-4 inline-flex w-max"}>
       <div className={"stat-container"}>
         <div className={"stat"}>
           <div className={"stat-label"}>
             Borrowed Books
-            <div className={"stat-increase-counter"}>2</div>
+            <div className={"stat-increase-counter"}>
+              <Image
+                src={
+                  caret >= 0
+                    ? "icons/admin/caret-up.svg"
+                    : "icons/admin/caret-down.svg"
+                }
+                width={18}
+                height={18}
+                alt={"caret_bookWise"}
+              />
+              {caret > 0 ? caret : -caret}
+            </div>
           </div>
           <div className={"stat-count"}>{borrowedBooks.length}</div>
         </div>
         <div className={"stat"}>
           <div className={"stat-label"}>
             Total Users
-            <div className={"stat-increase-counter"}>2</div>
+            <div className={"stat-increase-counter"}>
+              <Image
+                src={
+                  caretUsers >= 0
+                    ? "icons/admin/caret-up.svg"
+                    : "icons/admin/caret-down.svg"
+                }
+                width={18}
+                height={18}
+                alt={"caret_bookWise"}
+              />
+              {caretUsers > 0 ? caretUsers : -caretUsers}
+            </div>
           </div>
-          <div className={"stat-count"}>10</div>
+          <div className={"stat-count"}>{countUsers.length}</div>
         </div>
         <div className={"stat"}>
           <div className={"stat-label"}>
             Total Books
-            <div className={"stat-decrease-counter"}>2</div>
+            <div className={"stat-decrease-counter"}>
+              <Image
+                src={
+                  caretAllBooks >= 0
+                    ? "icons/admin/caret-up.svg"
+                    : "icons/admin/caret-down.svg"
+                }
+                width={18}
+                height={18}
+                alt={"caret_bookWise"}
+              />
+              {caretAllBooks > 0 ? caretAllBooks : -caretAllBooks}
+            </div>
           </div>
-          <div className={"stat-count"}>100</div>
+          <div className={"stat-count"}>{allBooks.length}</div>
         </div>
       </div>
       <div className={"home-content-container"}>
         <div className={"left-container"}>
           <div
             className={
-              "w-full max-h-full overflow-hidden rounded-bl-xl rounded-br-xl"
+              "w-full max-h-[50%] overflow-hidden rounded-bl-xl rounded-br-xl"
             }
           >
             <div
@@ -92,21 +191,29 @@ const Page = async () => {
                     height={50}
                   />
                   <div className={"title"}>
-                    {book.title?.slice(0, 20)}
+                    {book.title?.slice(0, 20) === book.title
+                      ? book.title
+                      : book.title?.slice(0, 20) + "..."}
                     <div className={"author"}>
                       {book.author}| {book.genre}
                     </div>
-                    <div className={"user text-xs font-normal "}>
-                      <div className={"avatar bg-amber-100 text-[10px]"}>
-                        RJ
-                      </div>
+                    <div className={"user text-xs font-normal items-center"}>
+                      <Avatar className={"w-6 h-6"}>
+                        <AvatarFallback className={"bg-amber-100"}>
+                          {getInitials(book.fullName)}
+                        </AvatarFallback>
+                      </Avatar>
                       {book.fullName}
                       <div className={"borrow-date text-xs font-normal"}>
                         {book.borrowDate?.toString().slice(4, 15)}
                       </div>
                     </div>
                   </div>
-                  <div className={"bg-transparent p-4 rounded-2xl "}>
+                  <div
+                    className={
+                      "bg-transparent p-4 rounded-2xl flex flex-1 justify-end "
+                    }
+                  >
                     <Image
                       src={"icons/admin/eye.svg"}
                       alt={"eye"}
@@ -156,17 +263,31 @@ const Page = async () => {
                 "p-4 flex flex-1 flex-row bg-light-300 rounded-[0.375rem]"
               }
             >
-              <div className={"flex justify-start items-center flex-1"}>
-                <Avatar
-                  className={"flex justify-start items-center h-4 w-4 bg-white"}
+              <div
+                className={
+                  "header-addNewBooks flex justify-start items-center flex-1"
+                }
+              >
+                <Button
+                  className={
+                    "text-sm text-dark-500 bg-transparent shadow-transparent hover:bg-transparent"
+                  }
+                  asChild
                 >
-                  <AvatarImage src={"icons/admin/plus.svg"} />
-                  <AvatarFallback className={"xs:w-48"}>+</AvatarFallback>
-                </Avatar>
+                  <Link
+                    href={"/admin/books/new?filter=true"}
+                    className={"text-sm"}
+                  >
+                    <Avatar>
+                      <AvatarFallback className={"bg-white"}>+</AvatarFallback>
+                    </Avatar>
+                    &nbsp;&nbsp;Add New Book
+                  </Link>
+                </Button>
               </div>
-              <div className={"flex items-center justify-end"}>
-                Add New Book
-              </div>
+              {/*<div className={"flex items-center justify-end"}>*/}
+              {/*  Add New Book*/}
+              {/*</div>*/}
             </div>
             <div className={"recent-books-container"}>
               {allBooks.map((book) => (
@@ -178,7 +299,9 @@ const Page = async () => {
                     height={50}
                   />
                   <div className={"title"}>
-                    {book.title?.slice(0, 20)}
+                    {book.title?.slice(0, 20) === book.title
+                      ? book.title
+                      : book.title?.slice(0, 20) + "..."}
                     <div className={"author"}>
                       {book.author}| {book.genre}
                     </div>

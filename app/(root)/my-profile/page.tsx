@@ -1,11 +1,8 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { sampleBooks } from "@/constants";
 import BookList from "@/components/BookList";
 import { books, borrowRecords } from "@/database/schema";
 import { db } from "@/database/drizzle";
-import { desc, eq } from "drizzle-orm";
-import { Session } from "next-auth";
+import { and, eq, ne } from "drizzle-orm";
 import { auth } from "@/auth";
 
 const Page = async () => {
@@ -27,10 +24,14 @@ const Page = async () => {
       createdAt: books.createdAt,
     })
     .from(books)
-    .leftJoin(borrowRecords, eq(books.id, borrowRecords.bookId))
+    .leftJoin(
+      borrowRecords,
+      and(
+        eq(books.id, borrowRecords.bookId),
+        ne(borrowRecords.status, "RETURNED"),
+      ),
+    )
     .where(eq(borrowRecords.userId, session?.user?.id as string))) as Book[];
-
-  console.log(JSON.parse(JSON.stringify(borrowedBooksData)));
 
   return (
     <>

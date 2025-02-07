@@ -3,7 +3,7 @@ import Image from "next/image";
 import BookCover from "@/components/BookCover";
 import BorrowBook from "@/components/BorrowBook";
 import { db } from "@/database/drizzle";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { borrowRecords, users } from "@/database/schema";
 
 interface Props extends Book {
@@ -37,7 +37,13 @@ const BookOverview = async ({
   const hasBorrowed = await db
     .select()
     .from(borrowRecords)
-    .where(and(eq(borrowRecords.bookId, id), eq(borrowRecords.userId, user.id)))
+    .where(
+      and(
+        eq(borrowRecords.bookId, id),
+        eq(borrowRecords.userId, user.id),
+        ne(borrowRecords.status, "RETURNED"),
+      ),
+    )
     .limit(1);
 
   if (hasBorrowed.length === 1) {

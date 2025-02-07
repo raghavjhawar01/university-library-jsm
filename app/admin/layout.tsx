@@ -40,6 +40,7 @@ const Layout = async ({ children }: { children: ReactNode }) => {
     <main className={"flex min-h-screen w-full flex-row"}>
       <Sidebar
         session={session}
+        //@ts-ignore
         action={async () => {
           "use server";
           await signOut();

@@ -40,11 +40,8 @@ const Page = async () => {
     0,
   );
 
-  console.log(today);
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
-
-  console.log(yesterday);
 
   const dayBefore = new Date(today);
   dayBefore.setDate(today.getDate() - 2);

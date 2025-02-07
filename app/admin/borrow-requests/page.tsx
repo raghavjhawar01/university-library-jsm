@@ -1,12 +1,6 @@
 import React from "react";
 import { db } from "@/database/drizzle";
-import {
-  books,
-  BORROW_STATUS_ENUM,
-  borrowRecords,
-  ROLE_ENUM,
-  users,
-} from "@/database/schema";
+import { books, borrowRecords, users } from "@/database/schema";
 import { count, desc, eq, ne } from "drizzle-orm";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,7 +8,6 @@ import Select from "@/components/admin/Select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import DeleteLink from "@/components/admin/DeleteLink";
 import config from "@/lib/config";
 
 const Page = async ({
@@ -25,8 +18,6 @@ const Page = async ({
   const isFilter = (await searchParams?.filter) || null;
 
   let borrowedBooks: any[];
-
-  // const status = Object.values(BORROW_STATUS_ENUM);
 
   if (isFilter) {
     borrowedBooks = await db
@@ -83,7 +74,7 @@ const Page = async ({
               isFilter ? "./borrow-requests" : "./borrow-requests?filter=true"
             }
           >
-            A-Z
+            By Date
           </Link>
           {/*<Image src={"/admin/"} alt={} width={15} height={15} />*/}
         </Button>
@@ -155,7 +146,6 @@ const Page = async ({
                   }
                 >
                   <Avatar>
-                    {/*<AvatarImage src="https://github.com/shadcn.png" />*/}
                     <AvatarFallback className="bg-amber-100 text-dark-100 font-semibold xs:w-48">
                       {getInitials(bookRecord.name || "IN")}
                     </AvatarFallback>

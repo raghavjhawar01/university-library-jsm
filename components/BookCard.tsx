@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { auth } from "@/auth";
 import { db } from "@/database/drizzle";
 import { borrowRecords } from "@/database/schema";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { date } from "drizzle-orm/pg-core";
 import dayjs from "dayjs";
+import ReturnBook from "@/components/ReturnBook";
+import GenerateReceiptButton from "@/components/GenerateReceiptButton";
 
 interface Props extends Book {
   isLoaned: boolean;
@@ -32,6 +34,7 @@ const BookCard = async ({
       and(
         eq(borrowRecords.bookId, id),
         eq(borrowRecords.userId, session?.user?.id as string),
+        ne(borrowRecords.status, "RETURNED"),
       ),
     )
     .limit(1);
@@ -74,12 +77,16 @@ const BookCard = async ({
                 {daysLeft} days left to return the book.
               </p>
             </div>
-            <Button className="book-btn font-bebas-neue text-dark-100">
-              Download Receipt
-            </Button>
-            <Button className="book-btn font-bebas-neue text-dark-100">
-              Return Book
-            </Button>
+            <GenerateReceiptButton
+              userId={session?.user?.id as string}
+              bookId={id}
+              hasBorrowed={isLoaned}
+            />
+            <ReturnBook
+              bookId={id}
+              userId={session?.user?.id as string}
+              hasBorrowed={isLoaned}
+            />
           </div>
         )}
       </Link>

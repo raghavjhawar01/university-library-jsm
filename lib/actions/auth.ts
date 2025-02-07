@@ -8,7 +8,7 @@ import { hash } from "bcryptjs";
 import { headers } from "next/headers";
 import ratelimit from "@/lib/ratelimit";
 import { redirect } from "next/navigation";
-import { workflowClient } from "@/lib/workflow";
+import { sendEmail, workflowClient } from "@/lib/workflow";
 import config from "@/lib/config";
 
 export const signInWithCredentials = async (
@@ -70,11 +70,29 @@ export const signUp = async (params: AuthCredentials) => {
       universityCard,
     });
 
-    await workflowClient.trigger({
-      url: `${config.env.prodApiEndpoint}/api/workflows/onboarding`,
-      body: {
-        email,
-        fullName,
+    // await workflowClient.trigger({
+    //   url: `${config.env.prodApiEndpoint}/api/workflows/onboarding`,
+    //   body: {
+    //     email,
+    //     fullName,
+    //   },
+    // });
+
+    await sendEmail({
+      email: email,
+      subject: "Welcome to BookWise!",
+      message: {
+        userName: fullName,
+        heading: "Welcome to BookWise, Your Reading Companion!",
+        text:
+          "Welcome to BookWise! We are excited to have you" +
+          "join our community of book enthusiasts. Explore a " +
+          "wide range of books, borrow with ease, and manage" +
+          "your reading journey seamlessly.\n" +
+          "Get started by logging in to your account:",
+        buttonUrl: "http://localhost:3000/",
+        buttonTitle: "Login to BookWise!",
+        footerText: "Happy Reading,\n" + "The Bookwise Team",
       },
     });
 

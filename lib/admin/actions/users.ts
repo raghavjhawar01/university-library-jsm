@@ -4,6 +4,7 @@ import { db } from "@/database/drizzle";
 import { borrowRecords, users } from "@/database/schema";
 import { count, eq } from "drizzle-orm";
 import { timestamp } from "drizzle-orm/pg-core";
+import { sendEmail } from "@/lib/workflow";
 
 export const updateBorrowRequestsStatus = async (
   newValue: string,
@@ -103,9 +104,36 @@ export const updateUserStatus = async (newValue: string, key: string) => {
     // @ts-ignore
     .set({ status: newValue })
     .where(eq(users.email, key))
-    .returning({ fullName: users.fullName });
+    .returning({ fullName: users.fullName, email: users.email });
+
+  // console.log(
+  //   "At approved user" +
+  //     JSON.parse(JSON.stringify(approvedUser)) +
+  //     "   " +
+  //     approvedUser[0].email +
+  //     "   " +
+  //     approvedUser[0].fullName,
+  // );
 
   if (approvedUser) {
+    if (newValue === "APPROVED") {
+      console.log(approvedUser[0].email + "sent mail.");
+      await sendEmail({
+        email: approvedUser[0].email,
+        subject: "Your BookWise account has been Approved!",
+        message: {
+          userName: approvedUser[0].fullName.split(" ")[0],
+          text:
+            "Congratulations! Your BookWise account has been approved. You can now browse our library, borrow books, and enjoy all the features of your new account.\n" +
+            "\n" +
+            "Log in to get started:",
+          buttonTitle: "Login To BookWise!",
+          buttonUrl: "http://localhost:3000/",
+          heading: "Your BookWise account has been Approved!",
+        },
+      });
+    }
+
     return {
       success: true,
       message: "User approved successfully.",
@@ -118,25 +146,25 @@ export const updateUserStatus = async (newValue: string, key: string) => {
   }
 };
 
-export const approveUser = async (userId: string) => {
-  const approvedUser = await db
-    .update(users)
-    .set({ status: "APPROVED" })
-    .where(eq(users.id, userId))
-    .returning({ fullName: users.fullName });
-
-  if (approvedUser) {
-    return {
-      success: true,
-      message: "User approved successfully.",
-    };
-  } else {
-    return {
-      success: false,
-      message: "User not approved, try again later.",
-    };
-  }
-};
+// export const approveUser = async (userId: string) => {
+//   const approvedUser = await db
+//     .update(users)
+//     .set({ status: "APPROVED" })
+//     .where(eq(users.id, userId))
+//     .returning({ fullName: users.fullName });
+//
+//   if (approvedUser) {
+//     return {
+//       success: true,
+//       message: "User approved successfully.",
+//     };
+//   } else {
+//     return {
+//       success: false,
+//       message: "User not approved, try again later.",
+//     };
+//   }
+// };
 
 export const displayAllUsers = async (isGroupBy: string = "false") => {
   let allUsers: any[];

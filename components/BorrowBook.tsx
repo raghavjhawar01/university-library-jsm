@@ -6,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { borrowBook } from "@/lib/actions/book";
-import { books, borrowRecords } from "@/database/schema";
-import { and, eq } from "drizzle-orm";
-import { db } from "@/database/drizzle";
 
 interface Props {
   userId: string;
@@ -30,50 +27,59 @@ const BorrowBook = ({
   const [borrowing, setBorrowing] = useState(false);
 
   const handleBorrow = async () => {
-    if (!isEligible) {
-      toast({
-        title: "Borrow Error",
-        description: message,
-        variant: "destructive",
-      });
+    if (hasBorrowed) {
+      router.push("/my-profile");
     } else {
-      setBorrowing(true);
-
-      try {
-        const result = await borrowBook({ bookId, userId, hasBorrowed });
-
-        if (result.success) {
-          toast({
-            title: "Success",
-            description: "Book borrowed successfully",
-          });
-
-          router.push("/my-profile");
-        } else if (hasBorrowed) {
-          toast({
-            title: "Success",
-            description: "Book Already Borrowed.",
-          });
-
-          router.push("/my-profile");
-        } else {
-          toast({
-            title: "Error",
-            description: "Error occurred while borrowing the book.",
-          });
-        }
-      } catch (error) {
+      if (!isEligible) {
         toast({
-          title: "Error",
-          description: "An error occurred while borrowing the book",
+          title: "Borrow Error",
+          description: message,
           variant: "destructive",
         });
-      } finally {
-        setBorrowing(false);
+      } else {
+        setBorrowing(true);
+
+        try {
+          const result = await borrowBook({ bookId, userId, hasBorrowed });
+
+          if (result.success) {
+            toast({
+              title: "Success",
+              description: "Book borrowed successfully",
+            });
+
+            router.push("/my-profile");
+          } else if (hasBorrowed) {
+            toast({
+              title: "Success",
+              description: "Book Already Borrowed.",
+            });
+
+            router.push("/my-profile");
+          } else {
+            toast({
+              title: "Error",
+              description: "Error occurred while borrowing the book.",
+            });
+            console.log("Here error1!");
+          }
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "An error occurred while borrowing the book",
+            variant: "destructive",
+          });
+          console.log(error);
+        } finally {
+          setBorrowing(false);
+          console.log("Here error3!");
+        }
       }
-    }
-    if (hasBorrowed) {
-      setBorrowing(true);
+      if (hasBorrowed) {
+        setBorrowing(true);
+        // const email =
+        // sendEmail(email,subject,message);
+      }
     }
   };
 

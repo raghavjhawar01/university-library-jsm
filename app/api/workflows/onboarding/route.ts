@@ -38,13 +38,19 @@ const getUserState = async (email: string): Promise<UserState> => {
 export const { POST } = serve<InitialData>(async (context) => {
   const { email, fullName } = context.requestPayload;
 
-  //Welcome Email
+  //Welcome EmailTemplates
 
   await context.run("new-signup", async () => {
     await sendEmail({
       email,
       subject: "Welcome to the platform",
-      message: `Welcome ${fullName}`,
+      message: {
+        userName: fullName,
+        buttonTitle: "Go to your profile",
+        text: "Welcome to the platform",
+        heading: "Welcome to the platform",
+        buttonUrl: "localhost:3000",
+      },
     });
   });
 
@@ -60,7 +66,13 @@ export const { POST } = serve<InitialData>(async (context) => {
         await sendEmail({
           email,
           subject: "Are you still there?",
-          message: `Hey ${fullName}, we miss you!`,
+          message: {
+            userName: fullName,
+            buttonTitle: "Go to your profile",
+            text: "We miss you!",
+            heading: "Are you still there? ",
+            buttonUrl: "localhost:3000",
+          },
         });
       });
     } else if (state === "active") {
@@ -68,7 +80,13 @@ export const { POST } = serve<InitialData>(async (context) => {
         await sendEmail({
           email,
           subject: "Welcome Back",
-          message: `Welcome ${fullName}!`,
+          message: {
+            userName: fullName,
+            buttonTitle: "Go to your profile",
+            text: "We are happy to have you back. Find new reads.",
+            heading: `Welcome back ${fullName}`,
+            buttonUrl: "localhost:3000",
+          },
         });
       });
     }

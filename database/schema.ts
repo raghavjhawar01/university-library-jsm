@@ -9,6 +9,7 @@ import {
   pgEnum,
   date,
   timestamp,
+  bigint,
 } from "drizzle-orm/pg-core";
 
 export const STATUS_ENUM = pgEnum("status", [
@@ -63,6 +64,7 @@ export const borrowRecords = pgTable("borrow_records", {
   bookId: uuid("book_id")
     .references(() => books.id)
     .notNull(),
+  receiptId: bigint("receipt_id", { mode: "number" }),
   borrowDate: timestamp("borrow_date", {
     withTimezone: true,
   })

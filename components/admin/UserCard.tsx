@@ -12,14 +12,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import Link from "next/link";
-import { approveUser } from "@/lib/admin/actions/users";
+import { updateUserStatus } from "@/lib/admin/actions/users";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { getInitials } from "@/lib/utils";
 
 interface userProps {
   id: string;
@@ -31,7 +27,7 @@ interface userProps {
 const UserCard = ({ id, initials, name, email }: userProps) => {
   const router = useRouter();
   const handleClick = async () => {
-    const approveTheUser = await approveUser(id as string);
+    const approveTheUser = await updateUserStatus("APPROVED", email as string);
     if (approveTheUser) {
       toast({
         title: "Approve User",
